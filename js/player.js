@@ -737,20 +737,22 @@ art.on('video:playing', () => {
 
     // 防止 video:playing 多次触发导致重复绑定
     if (art.video.__libreTvDblClickHandler) {
-        art.video.removeEventListener(
-            'dblclick',
-            art.video.__libreTvDblClickHandler
-        );
-    }
+  art.video.removeEventListener('dblclick', art.video.__libreTvDblClickHandler);
+  art.video.removeEventListener('click', art.video.__libreTvClickHandler);
+}
+art.video.__clickTimer = null;
+
+const clickHandler = (e) => {
+  if(art.video.__clickTimer) clearTimeout(art.video.__clickTimer);
+  art.video.__clickTimer = setTimeout(()=>{}, 350);
+};
 
     const dblClickHandler = (event) => {
-        // 播放器锁定时禁止双击操作
-        if (window.isLocked === true) {
-            return;
-        }
+  if (window.isLocked === true) return;
+  if(art.video.__clickTimer) clearTimeout(art.video.__clickTimer);
 
-        event.stopPropagation();
-        event.preventDefault();
+  event.stopPropagation();
+  event.preventDefault();
 
         // 400ms 防抖，防止重复触发
         const now = Date.now();
@@ -796,12 +798,12 @@ art.on('video:playing', () => {
     };
 
     // 保存事件处理器，防止重复绑定
-    art.video.__libreTvDblClickHandler = dblClickHandler;
+    art.video.addEventListener('dblclick', dblClickHandler);
+art.video.addEventListener('click', clickHandler);
 
-    art.video.addEventListener(
-        'dblclick',
-        dblClickHandler
-    );
+art.video.__libreTvDblClickHandler = dblClickHandler;
+art.video.__libreTvClickHandler = clickHandler;
+
 });
 
     // 10秒后如果仍在加载，但不立即显示错误
