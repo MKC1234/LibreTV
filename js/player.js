@@ -728,22 +728,23 @@ function initPlayer(videoUrl) {
             art.fullscreen = false;
         }
     });
-
+    
 // 添加双击控制支持
 art.on('video:playing', () => {
-    art.options.dblclickToggle = false;
     if (!art.video) {
         return;
     }
 
     // 防止 video:playing 多次触发导致重复绑定
     if (art.video.__libreTvDblClickHandler) {
-art.video.removeEventListener('dblclick', art.video.__libreTvDblClickHandler);
-}
+        // 解绑对象改为外层播放器容器 art.$player
+        art.$player.removeEventListener('dblclick', art.video.__libreTvDblClickHandler);
+    }
+
     const dblClickHandler = (event) => {
-  if (window.isLocked === true) return;
-  event.stopPropagation();
-  event.preventDefault();
+        if (window.isLocked === true) return;
+        event.stopPropagation();
+        event.preventDefault();
 
         // 400ms 防抖，防止重复触发
         const now = Date.now();
@@ -756,7 +757,8 @@ art.video.removeEventListener('dblclick', art.video.__libreTvDblClickHandler);
         art.video.__libreTvLastDblClick = now;
 
         const video = art.video;
-        const rect = video.getBoundingClientRect();
+        // 坐标来源改为外层容器，匹配点击位置
+        const rect = art.$player.getBoundingClientRect();
         const x = event.clientX - rect.left;
         const width = rect.width;
 
@@ -788,9 +790,9 @@ art.video.removeEventListener('dblclick', art.video.__libreTvDblClickHandler);
         }
     };
 
-    // 保存事件处理器，防止重复绑定
-    art.video.addEventListener('dblclick', dblClickHandler);
-art.video.__libreTvDblClickHandler = dblClickHandler;
+    // 绑定对象改为外层播放器容器 art.$player
+    art.$player.addEventListener('dblclick', dblClickHandler);
+    art.video.__libreTvDblClickHandler = dblClickHandler;
 });
 
     // 10秒后如果仍在加载，但不立即显示错误
