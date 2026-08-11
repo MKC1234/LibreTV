@@ -731,69 +731,37 @@ function initPlayer(videoUrl) {
     
 // 添加双击控制支持
 art.on('video:playing', () => {
-    if (!art.video) {
-        return;
+  if (!art.video) return;
+
+  const handler = (e) => {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    const now = Date.now();
+    if (art.video.__lastDbl && now - art.video.__lastDbl < 400) return;
+    art.video.__lastDbl = now;
+
+    const rect = art.$player.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const w = rect.width;
+
+    if (x < w / 3) {
+      art.video.currentTime = Math.max(0, art.video.currentTime - 15);
+    } else if (x > w * 2 / 3) {
+      const dur = art.video.duration;
+      art.video.currentTime = Number.isFinite(dur)
+        ? Math.min(dur, art.video.currentTime + 15)
+        : art.video.currentTime + 15;
+    } else {
+      art.fullscreen = !art.fullscreen;
     }
+  };
 
-    // 防止 video:playing 多次触发导致重复绑定
-    if (art.video.__libreTvDblClickHandler) {
-        // 解绑对象改为外层播放器容器 art.$player
-        art.$player.removeEventListener('dblclick', art.video.__libreTvDblClickHandler);
-    }
-
-    const dblClickHandler = (event) => {
-        if (window.isLocked === true) return;
-        event.stopPropagation();
-        event.preventDefault();
-
-        // 400ms 防抖，防止重复触发
-        const now = Date.now();
-        if (
-            art.video.__libreTvLastDblClick &&
-            now - art.video.__libreTvLastDblClick < 400
-        ) {
-            return;
-        }
-        art.video.__libreTvLastDblClick = now;
-
-        const video = art.video;
-        // 坐标来源改为外层容器，匹配点击位置
-        const rect = art.$player.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const width = rect.width;
-
-        // 左侧 1/3：后退 15 秒
-        if (x < width / 3) {
-            video.currentTime = Math.max(
-                0,
-                video.currentTime - 15
-            );
-        }
-
-        // 右侧 1/3：快进 15 秒
-        else if (x > width * 2 / 3) {
-            const duration = video.duration;
-
-            if (Number.isFinite(duration) && duration > 0) {
-                video.currentTime = Math.min(
-                    duration,
-                    video.currentTime + 15
-                );
-            } else {
-                video.currentTime += 15;
-            }
-        }
-
-        // 中间 1/3：双击全屏
-        else {
-            art.fullscreen = !art.fullscreen;
-        }
-    };
-
-    // 绑定对象改为外层播放器容器 art.$player
-    art.$player.addEventListener('dblclick', dblClickHandler);
-    art.video.__libreTvDblClickHandler = dblClickHandler;
+  // 捕获模式绑定，优先级拉满
+  art.$player.removeEventListener('dblclick', art.video.__dblHandler, true);
+  art.video.__dblHandler = handler;
+  art.$player.addEventListener('dblclick', handler, true);
 });
+
 
     // 10秒后如果仍在加载，但不立即显示错误
     setTimeout(function () {
