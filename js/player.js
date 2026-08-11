@@ -439,7 +439,6 @@ function initPlayer(videoUrl) {
 
     // Create new ArtPlayer instance
     art = new Artplayer({
-        dblclick: false,
         container: '#player',
         url: videoUrl,
         type: 'm3u8',
