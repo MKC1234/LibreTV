@@ -463,6 +463,7 @@ function initPlayer(videoUrl) {
         mutex: true,
         backdrop: true,
         playsInline: true,
+        gesture: false,
         autoPlayback: false,
         airplay: true,
         hotkey: false,
