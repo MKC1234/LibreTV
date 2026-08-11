@@ -731,26 +731,17 @@ function initPlayer(videoUrl) {
 
 // 添加双击控制支持
 art.on('video:playing', () => {
+    art.options.dblclickToggle = false;
     if (!art.video) {
         return;
     }
 
     // 防止 video:playing 多次触发导致重复绑定
     if (art.video.__libreTvDblClickHandler) {
-  art.video.removeEventListener('dblclick', art.video.__libreTvDblClickHandler);
-  art.video.removeEventListener('click', art.video.__libreTvClickHandler);
+art.video.removeEventListener('dblclick', art.video.__libreTvDblClickHandler);
 }
-art.video.__clickTimer = null;
-
-const clickHandler = (e) => {
-  if(art.video.__clickTimer) clearTimeout(art.video.__clickTimer);
-  art.video.__clickTimer = setTimeout(()=>{}, 350);
-};
-
     const dblClickHandler = (event) => {
   if (window.isLocked === true) return;
-  if(art.video.__clickTimer) clearTimeout(art.video.__clickTimer);
-
   event.stopPropagation();
   event.preventDefault();
 
@@ -799,11 +790,7 @@ const clickHandler = (e) => {
 
     // 保存事件处理器，防止重复绑定
     art.video.addEventListener('dblclick', dblClickHandler);
-art.video.addEventListener('click', clickHandler);
-
 art.video.__libreTvDblClickHandler = dblClickHandler;
-art.video.__libreTvClickHandler = clickHandler;
-
 });
 
     // 10秒后如果仍在加载，但不立即显示错误
