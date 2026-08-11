@@ -749,6 +749,7 @@ art.on('video:playing', () => {
             return;
         }
 
+        event.stopPropagation();
         event.preventDefault();
 
         // 400ms 防抖，防止重复触发
@@ -774,17 +775,17 @@ art.on('video:playing', () => {
             );
         }
 
-        // 右侧 1/3：快进 20 秒
+        // 右侧 1/3：快进 15 秒
         else if (x > width * 2 / 3) {
             const duration = video.duration;
 
             if (Number.isFinite(duration) && duration > 0) {
                 video.currentTime = Math.min(
                     duration,
-                    video.currentTime + 20
+                    video.currentTime + 15
                 );
             } else {
-                video.currentTime += 20;
+                video.currentTime += 15;
             }
         }
 
