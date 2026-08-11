@@ -439,6 +439,7 @@ function initPlayer(videoUrl) {
 
     // Create new ArtPlayer instance
     art = new Artplayer({
+        dblclick: false,
         container: '#player',
         url: videoUrl,
         type: 'm3u8',
@@ -749,7 +750,9 @@ art.on('video:playing', () => {
       videoDom.currentTime = Math.max(0, videoDom.currentTime - 15);
     } else if (x > w * 2 / 3) {
       const dur = videoDom.duration;
-      videoDom.currentTime = Number.isFinite(dur) ? Math.min(dur, dur + 15) : videoDom.currentTime + 15;
+      videoDom.currentTime = Number.isFinite(dur)
+        ? Math.min(dur, videoDom.currentTime + 15)
+        : videoDom.currentTime + 15;
     } else {
       art.fullscreen = !art.fullscreen;
     }
