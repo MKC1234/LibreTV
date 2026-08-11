@@ -729,16 +729,79 @@ function initPlayer(videoUrl) {
         }
     });
 
-    // 添加双击全屏支持
-    art.on('video:playing', () => {
-        // 绑定双击事件到视频容器
-        if (art.video) {
-            art.video.addEventListener('dblclick', () => {
-                art.fullscreen = !art.fullscreen;
-                art.play();
-            });
+// 添加双击控制支持
+art.on('video:playing', () => {
+    if (!art.video) {
+        return;
+    }
+
+    // 防止 video:playing 多次触发导致重复绑定
+    if (art.video.__libreTvDblClickHandler) {
+        art.video.removeEventListener(
+            'dblclick',
+            art.video.__libreTvDblClickHandler
+        );
+    }
+
+    const dblClickHandler = (event) => {
+        // 播放器锁定时禁止双击操作
+        if (window.isLocked === true) {
+            return;
         }
-    });
+
+        event.preventDefault();
+
+        // 400ms 防抖，防止重复触发
+        const now = Date.now();
+        if (
+            art.video.__libreTvLastDblClick &&
+            now - art.video.__libreTvLastDblClick < 400
+        ) {
+            return;
+        }
+        art.video.__libreTvLastDblClick = now;
+
+        const video = art.video;
+        const rect = video.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const width = rect.width;
+
+        // 左侧 1/3：后退 15 秒
+        if (x < width / 3) {
+            video.currentTime = Math.max(
+                0,
+                video.currentTime - 15
+            );
+        }
+
+        // 右侧 1/3：快进 20 秒
+        else if (x > width * 2 / 3) {
+            const duration = video.duration;
+
+            if (Number.isFinite(duration) && duration > 0) {
+                video.currentTime = Math.min(
+                    duration,
+                    video.currentTime + 20
+                );
+            } else {
+                video.currentTime += 20;
+            }
+        }
+
+        // 中间 1/3：双击全屏
+        else {
+            art.fullscreen = !art.fullscreen;
+        }
+    };
+
+    // 保存事件处理器，防止重复绑定
+    art.video.__libreTvDblClickHandler = dblClickHandler;
+
+    art.video.addEventListener(
+        'dblclick',
+        dblClickHandler
+    );
+});
 
     // 10秒后如果仍在加载，但不立即显示错误
     setTimeout(function () {
