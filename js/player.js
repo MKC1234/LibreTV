@@ -732,36 +732,33 @@ function initPlayer(videoUrl) {
 // 添加双击控制支持
 art.on('video:playing', () => {
   if (!art.video) return;
+  const videoDom = art.video;
 
   const handler = (e) => {
     e.preventDefault();
     e.stopImmediatePropagation();
     const now = Date.now();
-    if (art.video.__lastDbl && now - art.video.__lastDbl < 400) return;
-    art.video.__lastDbl = now;
+    if (videoDom.__lastDbl && now - videoDom.__lastDbl < 400) return;
+    videoDom.__lastDbl = now;
 
-    const rect = art.$player.getBoundingClientRect();
+    const rect = videoDom.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const w = rect.width;
 
     if (x < w / 3) {
-      art.video.currentTime = Math.max(0, art.video.currentTime - 15);
+      videoDom.currentTime = Math.max(0, videoDom.currentTime - 15);
     } else if (x > w * 2 / 3) {
-      const dur = art.video.duration;
-      art.video.currentTime = Number.isFinite(dur)
-        ? Math.min(dur, art.video.currentTime + 15)
-        : art.video.currentTime + 15;
+      const dur = videoDom.duration;
+      videoDom.currentTime = Number.isFinite(dur) ? Math.min(dur, dur + 15) : videoDom.currentTime + 15;
     } else {
       art.fullscreen = !art.fullscreen;
     }
   };
 
-  // 捕获模式绑定，优先级拉满
-  art.$player.removeEventListener('dblclick', art.video.__dblHandler, true);
-  art.video.__dblHandler = handler;
-  art.$player.addEventListener('dblclick', handler, true);
+  videoDom.removeEventListener('dblclick', videoDom.__dblHandler, true);
+  videoDom.__dblHandler = handler;
+  videoDom.addEventListener('dblclick', handler, true);
 });
-
 
     // 10秒后如果仍在加载，但不立即显示错误
     setTimeout(function () {
