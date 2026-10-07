@@ -1,11 +1,15 @@
 const CUSTOMER_SITES = {
-    qiqi: {
+    Baofeng: {
         api: 'https://bfzyapi.com/api.php/provide/vod',
         name: '暴风资源',
     },
-    source2: {
+    Ruyi: {
         api: 'https://cj.rycjapi.com/api.php/provide/vod',
         name: '如意资源',
+    },
+    Modu:{
+        api: 'https://www.mdzyapi.com/api.php/provide/vod',
+        name: '魔都资源',
     }
 };
 
