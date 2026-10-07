@@ -8,8 +8,8 @@ const CUSTOMER_SITES = {
         name: '如意资源',
     },
     Modu:{
-        api: 'https://www.mdzyapi.com/api.php/provide/vod',
-        name: '魔都资源',
+        api: '',
+        name: '',
     }
 };
 
